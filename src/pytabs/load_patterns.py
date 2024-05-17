@@ -42,8 +42,18 @@ class LoadPatterns:
         :rtype: int
         """
         return self.load_patterns.Count()
+    
+    def delete(self, load_pattern_name: str) -> int:
+        """Delete the specified load pattern.
 
-    # TODO Add Delete method
+        :return: handle
+        :rtype: int
+        """
+        ret = self.load_patterns.Delete(load_pattern_name)
+        handle(ret)
+        return self.load_patterns.Count()
+
+
     # TODO GetAutoSeismicCode method
     # TODO GetAutoWindCode method
 

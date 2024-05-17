@@ -15,6 +15,9 @@ from .enumerations import eFrameDesignProcedure
 # import typing
 from typing import Union, TypedDict
 
+# import shutil
+import shutil
+
 # import of ETABS API interface wrappers
 from .analyse import Analyse
 from .analysis_results import AnalysisResults
@@ -61,6 +64,7 @@ class EtabsModel:
                  attach_to_instance: bool = True,
                  specific_etabs: bool = False,
                  specific_etabs_path: Union[str, Path] = '',
+                 backup: bool = True,
                  model_path: Union[str, Path] = '',
                  remote_computer: str = '') -> None:
         
@@ -234,6 +238,8 @@ class EtabsModel:
             # if not attached to instance and model path supplied open model
             if (not attach_to_instance) and model_path:
                 self.open_model(model_path)
+            if backup:
+                self.backup_model()
 
     def exit_application(self):
         """Terminates ETABS application severing API connection"""
@@ -370,3 +376,48 @@ class EtabsModel:
         :type temperature_units: eTemperature
         """
         handle(self.sap_model.SetPresentUnits_2(force_units, length_units, temperature_units))
+        
+        
+    def backup_model(self, name=None):
+        max_num = 0
+        backup_path=None
+        if name is None:
+            filename = self.get_file_name_without_suffix()
+            file_path = self.get_filepath()
+            backup_path = file_path / 'backups'
+            if not backup_path.exists():
+                import os
+                os.mkdir(str(backup_path))
+            backup_path = backup_path
+            for edb in backup_path.glob(f'BACKUP_{filename}*.EDB'):
+                num = edb.name.rstrip('.EDB')[len('BACKUP_') + len(filename) + 1:]
+                try:
+                    num = int(num)
+                    max_num = max(max_num, num)
+                except:
+                    continue
+            name = f'BACKUP_{filename}_{max_num + 1}.EDB'
+        if not name.lower().endswith('.edb'):
+            name += '.EDB'
+        asli_file_path = self.get_filename()
+        asli_file_path = asli_file_path.with_suffix('.EDB')
+        if backup_path is None:
+            new_file_path = asli_file_path.parent / name
+        else:
+            new_file_path = backup_path / name
+        shutil.copy(asli_file_path, new_file_path)
+        return new_file_path
+    
+    def get_filename(self) -> Path:
+        '''
+        Get the model filename
+        '''
+        return Path(self.etabs_object.SapModel.GetModelFilename())
+    
+    def get_file_name_without_suffix(self):
+        f = Path(self.etabs_object.SapModel.GetModelFilename())
+        name = f.name.replace(f.suffix, '')
+        return name
+
+    def get_filepath(self) -> Path:
+        return Path(self.etabs_object.SapModel.GetModelFilename()).parent
