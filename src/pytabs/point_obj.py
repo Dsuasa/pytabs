@@ -112,3 +112,31 @@ class PointObj:
         :type item_type: eItemType, optional
         """
         handle(self.point_obj.SetSpringAssignment(point_name, point_spring_prop, item_type))
+        
+        
+    def get_points_list(self,NumberNames = int,MyName = str)-> list[str]:
+        
+        """Retrieves the names of points
+
+        :param NumberNames: number of results retrieved
+        :type case_type: Union[None, eLoadCaseType], optional
+        :return: point objects names
+        :rtype: list[str]
+        """
+        
+        _number_names = int()
+        my_name =  [str()]
+        [ret, _number_names,points] = self.point_obj.GetNameList(_number_names,my_name)
+        handle(ret)
+        return list(points)
+
+    def get_reactions(self,name = str(),TypeElm = 3):
+        """Retrieves the point object reactions
+
+        :param point_name: unique name of an existing point object
+        :type point_name: str
+        :return: point object spring assignment
+        :rtype: str
+        """
+        ret = 1
+        

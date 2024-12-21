@@ -90,6 +90,14 @@ class LoadCases:
         :type case_name: str
         """
         handle(self.load_cases.Delete(case_name))
+        
+    def add(self, case_name: str) -> None:
+        """Adds the specified load case.
+
+        :param case_name: name of existing load case
+        :type case_name: str
+        """
+        handle(self.load_cases.Add())
 
     def get_name_list(self, case_type: Union[None, etabs.eLoadCaseType] = None) -> list[str]:
         """Retrieves the names of all defined load cases of the specified type.
@@ -162,3 +170,70 @@ class LoadCases:
             else:
                 sub_types_dict = {1: 'Transient', 2: 'Periodic'}
             return sub_types_dict[sub_type]
+        
+    def init_modal_eigen_case(self, case_name: str, ):
+        """Set modal load case.
+
+        :param case_name: name of existing load case
+        Returns
+        -------
+        None.
+
+        """
+        
+        ref = self.load_cases.ModalEigen.SetCase(case_name)
+        handle(ref)
+    
+    
+    def set_par_modal_eigen_case(self, case_name: str, eigen_shif_freq: float,
+                                 eigen_cutoff:float, eigen_tol:float, allow_auto_freq_shift:int):
+        
+        ref = self.load_cases.ModalEigenSetParameters(case_name, eigen_shif_freq, 
+                                                      eigen_cutoff, eigen_tol, 
+                                                      allow_auto_freq_shift)
+        handle(ref)
+        
+        ref = self.load_cases.ModalEigen.SetNumberModes(case_name, max_modes, min_modes)
+        handle(ref)
+        
+    def set_modal_eigen_loads(self, case_name: str, NumberLoads: int, LoadType:str, LoadName: str, TargetPar: float, StaticCorrect:bool):
+        
+        ref = self.load_cases.ModalEigen.SetLoads(case_name, NumberLoads, LoadType, LoadName, TargetPar, StaticCorrect)
+        
+        handle(ref)
+        
+        
+    def set_modal_ritz_case(self): 
+        """
+        'add modal Ritz load case
+    ret = SapModel.LoadCases.ModalRitz.SetCase("LCASE1")
+    
+    'set load data
+        ReDim MyLoadType(2)
+        ReDim MyLoadName(2)
+        ReDim MyRitzMaxCyc(2)
+        ReDim MyTargetPar(2)
+        MyLoadType(0) = "Load"
+        MyLoadName(0) = "DEAD"
+        MyRitzMaxCyc(0) = 0
+        MyTargetPar(0) = 99
+        MyLoadType(1) = "Accel"
+        MyLoadName(1) = "UZ"
+        MyRitzMaxCyc(1) = 0
+        MyTargetPar(1) = 99
+        MyLoadType(2) = "Link"
+        MyRitzMaxCyc(2) = 0
+        MyTargetPar(2) = 99
+    
+    'add modal Ritz load case
+        ret = SapModel.LoadCases.ModalRitz.SetLoads("LCASE1", 3, MyLoadType, MyLoadName, MyRitzMaxCyc, MyTargetPar)
+
+
+        """
+        
+        
+        
+
+
+        
+            

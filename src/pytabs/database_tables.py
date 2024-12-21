@@ -192,7 +192,8 @@ class DatabaseTables:
     def set_table_data_array_edit(self, table: DbTable, field_keys: list[str], table_data: list[list]) -> None:
         table_version = int()
         num_records = len(table_data)
-        records = [item for record in table_data for item in record]
+        # records = [item for record in table_data for item in record]
+        records = [item for item in table_data]
         [ret, _table_version,
          _field_keys_out, _table_data] = self.database_tables.SetTableForEditingArray(table.table_key, table_version,
                                                                                       field_keys, num_records, records)
@@ -224,7 +225,59 @@ class DatabaseTables:
         is_importable = [int()]
         is_empty = [bool()]
         [ret, number_tables, table_key,
-         table_name, is_importable, is_empty] = self.database_tables.GetAllTables(number_tables, table_key,
-                                                                                  table_name, is_importable, is_empty)
+         table_name, is_importable, is_empty] = self.database_tables.GetAllTables(
+             number_tables, table_key,table_name, is_importable, is_empty)
         handle(ret)
         return number_tables, table_key, table_name, is_importable, is_empty
+    
+    
+    def get_available_db_tables(self):
+        """
+        gets the available tables from the etabs model. Not all tables will be 
+        available for a model.
+        
+        returns all_tables
+        
+        import types:
+            0: not importable
+            1: importable but not interactively importable
+            2: importable and interactively importable when the model is unlocked
+            3: importable and interactively importable when the model is unlocked and locked
+        """
+        number_tables = int()
+        table_key = [str()]
+        table_name = [str()]
+        import_type = [int()]
+        table_data=self.database_tables.GetAvailableTables(number_tables,table_key,table_name,import_type)
+        available_tables={};
+        for i in range(table_data[1]):
+            table_key=table_data[2][i];
+            table_name=table_data[3][i];
+            import_type=table_data[4][i];
+            available_tables[table_key]={
+                'table_name':table_name,
+                'import_type':import_type};
+        return available_tables;
+    
+    def get_table_for_editing_array(self,table_key:str):
+        """
+        Returns a single table in a string array for interactive editing. 
+        
+        returns table array
+        
+        import types:
+            0: not importable
+            1: importable but not interactively importable
+            2: importable and interactively importable when the model is unlocked
+            3: importable and interactively importable when the model is unlocked and locked
+        """
+        # table_key = [str()]
+        table_version = int()
+        fileds_key_included = str()
+        num_records = int()
+        table_data = str()
+        GroupName = str()
+        
+        table_data,num_records = self.database_tables.GetTableForEditingArray(table_key,GroupName,table_version,fileds_key_included)
+
+        return table_data;

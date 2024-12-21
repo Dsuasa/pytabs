@@ -214,6 +214,22 @@ class StoryDrift(TypedDict):
     delta_x: list[float]
     delta_y: list[float]
     delta_z: list[float]
+    
+
+class JointReactions(TypedDict):
+    """TypedDict class for joint_displacement return"""
+    number_results: int
+    object_name: list[str]
+    element_name: list[str]
+    load_case: list[str]
+    step_type: list[str]
+    step_number: list[float]
+    F1: list[float]
+    F2: list[float]
+    F3: list[float]
+    M1: list[float]
+    M2: list[float]
+    M3: list[float]
 
 
 class AnalysisResults:
@@ -797,3 +813,54 @@ class AnalysisResults:
                 'delta_x': list(delta_x),
                 'delta_y': list(delta_y),
                 'delta_z': list(delta_z)}
+
+    def joint_react(self, name: str, item_type_element: etabs.eItemTypeElm) -> JointReactions:
+        """Reports the joint reactions for the specified point elements.
+
+        :param name: The name of an existing point object, point element, or group of objects depending on the value of the ItemTypeElm item
+        :type name: str
+        :param item_type_element: one of the following items in the `eItemTypeElm` enumeration.
+            `ObjectElm` - the point element corresponding to the point object specified by the `name`
+            `Element` - the point element specified by `name`
+            `GroupElm` - all point elements directly or indirectly specified in the group specified by `name`
+            `SelectionElm` - all point elements directly or indirectly selected and `name` is ignored
+        :type item_type_element: etabs.eItemTypeElm
+        :return: Joint Displacement analysis results 
+        :rtype: JointDisplacement
+        """
+        number_results = int()
+        object_name = [str()]
+        element_name = [str()]
+        load_case = [str()]
+        step_type = [str()]
+        step_number = [float()]
+        F1 = [float()]
+        F2 = [float()]
+        F3 = [float()]
+        M1 = [float()]
+        M2 = [float()]
+        M3 = [float()]
+
+        [ret, number_results, object_name, element_name,
+         load_case, step_type, step_number,
+         F1, F2, F3,
+         M1, M2, M3] = self.analysis_results.JointReact(name, item_type_element, number_results,
+                                                                                object_name, element_name,
+                                                                                load_case, step_type, step_number,
+                                                                                F1, F2, F3,
+                                                                                M1, M2, M3)
+        handle(ret)
+        
+        return{'number_results': number_results,
+                'object_name': list(object_name),
+                'element_name': list(element_name),
+                'load_case': list(load_case),
+                'step_type': list(step_type),
+                'step_number': list(step_number),
+                'F1': list(F1),
+                'F2': list(F2),
+                'F3': list(F3),
+                'M1': list(M1),
+                'M2': list(M2),
+                'M3': list(M3)}
+    
